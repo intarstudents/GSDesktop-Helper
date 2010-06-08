@@ -47,15 +47,24 @@ class GSDesktop_Helper:
     self._status_icon = gtk.StatusIcon()
     self._status_icon.set_from_file("gs128.png")
     self._status_icon.set_tooltip("GSDesktop Helper")
-    #self._status_icon.connect("activate", self.menu_callback)
+    self._status_icon.connect("activate", self.toggle_main_window)
     self._status_icon.connect("popup-menu", self.menu_callback)
 
     self._window = gtk.Window()
-    self._window.connect('destroy', gtk.main_quit)
+    self._window.connect('destroy', self.window_close)
     
     self._window.show_all()
     gtk.main()
+  
+  def window_close(self, window):
+    window.hide()
     
+  def toggle_main_window(self, widget):
+    if self._window.flags() & gtk.VISIBLE:
+      self._window.hide()
+    else:
+      self._window.show()
+  
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
       try:
@@ -67,15 +76,22 @@ class GSDesktop_Helper:
   
   def menu_callback(self, icon, button, time):
     menu = gtk.Menu()
+    toggle_value = None
     
-    restore = gtk.MenuItem("Restore")
+    if self._window.flags() & gtk.VISIBLE:
+      toggle_value = "Hide"
+    else:
+      toggle_value = "Restore"
+    
+    toggle  = gtk.MenuItem(toggle_value)
     about   = gtk.MenuItem("About")
     quit    = gtk.MenuItem("Quit")
     
+    toggle.connect("activate", self.toggle_main_window)
     about.connect("activate", self.show_about_dialog)
     quit.connect("activate", gtk.main_quit)
     
-    menu.append(restore)
+    menu.append(toggle)
     menu.append(about)
     menu.append(quit)
     
