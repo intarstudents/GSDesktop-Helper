@@ -55,7 +55,6 @@ class GSDesktop_Helper:
       file = open(self._shortcutAction, "a")
       file.write("%s\n" % toggle)
       file.close()
-      print toggle
 
 if __name__ == '__main__':
   GSDesktop_Helper()
