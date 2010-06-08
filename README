@@ -1,0 +1,11 @@
+=== Dependencies ===
+aptitude install python-keybinder python-gtk2 python
+
+=== Usage (Ubuntu) ===
+$ cd ~
+$ git clone http://github.com/intarstudents/GSDesktop-Helper.git
+
+Now Alt + F2 and in Run Application dialoge write:
+GSDesktop-Helper/helper.py
+
+That's it!
