@@ -2,6 +2,7 @@
 # - coding: utf-8 -
 
 import os
+import sys
 import re
 import gtk
 import keybinder
@@ -12,7 +13,7 @@ class GSDesktop_Helper:
     self._NAME    = "GSDesktop Helper"
     self._VERSION = "0.1"
     self._AUTHORS = ["Intars Students"]
-    self._ICON    = "%s/gs128.png" % os.getcwd()
+    self._ICON    = "%s/gs128.png" % sys.path[0]
     
     self._homedir = "%s/.appdata" % os.path.expanduser('~')
     self._appdata = os.listdir(self._homedir)
