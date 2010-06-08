@@ -1,11 +1,31 @@
 #!/usr/bin/env python
 # - coding: utf-8 -
 
+import os
+import re
 import gtk
 import keybinder
 
 class GSDesktop_Helper:
   def __init__(self):
+    
+    self._homedir = "%s/.appdata" % os.path.expanduser('~')
+    self._appdata = os.listdir(self._homedir)
+    self._shortcutAction = None
+    
+    for name in self._appdata:
+      m = re.match("^(GroovesharkDesktop[A-Z0-9\.]+)$", name)
+      
+      if m:
+        self._shortcutAction = "%s/%s/Local Store/shortcutAction.txt" % (self._homedir, m.group(0))
+        
+        if os.path.exists(self._shortcutAction):
+          break
+        else:
+          self._shortcutAction = None
+    
+    if not self._shortcutAction:
+      print "No shortcut action file!"
     
     self._hotkeys = {
       '<Ctrl>period'          : "next",           # Ctrl + .
@@ -31,7 +51,11 @@ class GSDesktop_Helper:
     gtk.main()
     
   def keyboard_callback(self, toggle):
-    print user_data
+    if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
+      file = open(self._shortcutAction, "a")
+      file.write("%s\n" % toggle)
+      file.close()
+      print toggle
 
 if __name__ == '__main__':
   GSDesktop_Helper()
