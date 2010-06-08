@@ -43,11 +43,16 @@ class GSDesktop_Helper:
       '<Ctrl><Alt>Page_Down'  : "volumedown",     # Ctrl + Alt + Page Down
     }
     
-    for keystring in self._hotkeys:
+    for keystring in self._hotkeys:  
+      try:  keybinder.unbind(keystring)
+      except: pass
+        
       try:
         keybinder.bind(keystring, self.keyboard_callback, self._hotkeys[keystring])
+        print "%s binded" % keystring
+        
       except Exception, e:
-        print e
+        pass
     
     self._status_icon = gtk.StatusIcon()
     self._status_icon.set_from_file(self._ICON)
