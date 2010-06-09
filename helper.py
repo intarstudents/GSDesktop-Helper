@@ -13,8 +13,23 @@ class GSDesktop_Helper:
     self._NAME    = "GSDesktop Helper"
     self._VERSION = "0.1"
     self._AUTHORS = ["Intars Students"]
-    self._ICON    = "%s/gs128.png" % sys.path[0]
     
+    # Try to find icon file
+    if os.path.exists("%s/gsd-helper.png" % sys.path[0]):
+      self._ICON  = "%s/gsd-helper.png" % sys.path[0]
+      
+    elif os.path.exists("/usr/share/pixmaps/gsd-helper.png"):
+      self._ICON  = "/usr/share/pixmaps/gsd-helper.png"
+      
+    else:
+      # Else throw error and exit
+      error_msg = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "Couldn't find icon file!")
+      error_msg.run()
+      
+      error_msg.destroy()
+      os._exit(0)
+    
+    # Find shortcutAction.txt file
     self._homedir = "%s/.appdata" % os.path.expanduser('~')
     self._appdata = os.listdir(self._homedir)
     self._shortcutAction = None
@@ -31,8 +46,13 @@ class GSDesktop_Helper:
           self._shortcutAction = None
     
     if not self._shortcutAction:
-      print "No shortcut action file!"
+      error_msg = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "Couldn't find shortcutAction.txt file!")
+      error_msg.run()
+      
+      error_msg.destroy()
+      os._exit(0)
     
+    # List of all hotkeys and their actions
     self._hotkeys = {
       '<Ctrl>period'          : "next",           # Ctrl + .
       '<Ctrl>comma'           : "previous",       # Ctrl + ,
@@ -44,6 +64,7 @@ class GSDesktop_Helper:
       '<Ctrl><Alt>Page_Down'  : "volumedown",     # Ctrl + Alt + Page Down
     }
     
+    # Bind all hotkeys (before making sure to unbind them)
     for keystring in self._hotkeys:  
       try:  keybinder.unbind(keystring)
       except: pass
@@ -55,6 +76,7 @@ class GSDesktop_Helper:
       except Exception, e:
         pass
     
+    # Status icon stuff
     self._status_icon = gtk.StatusIcon()
     self._status_icon.set_from_file(self._ICON)
     self._status_icon.set_tooltip(self._NAME)
@@ -62,6 +84,7 @@ class GSDesktop_Helper:
     
     gtk.main()
   
+  # Handle recieved hotkey action
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
       try:
@@ -71,6 +94,7 @@ class GSDesktop_Helper:
       except Exception, e:
         print e
   
+  # Handle status icon popup
   def menu_callback(self, icon, button, time):
     menu = gtk.Menu()
 
@@ -85,7 +109,8 @@ class GSDesktop_Helper:
     
     menu.show_all()
     menu.popup(None, None, gtk.status_icon_position_menu, button, time, self._status_icon)
-    
+  
+  # Show groovy About dialog
   def show_about_dialog(self, widget):
     
     about_dialog = gtk.AboutDialog()
@@ -96,7 +121,7 @@ class GSDesktop_Helper:
     about_dialog.set_version(self._VERSION)
     about_dialog.set_authors(self._AUTHORS)
     about_dialog.set_website("http://grooveshark.wikia.com/wiki/GSDesktop_Global_Keyboard_Shortcuts")
-    about_dialog.set_website_label("Wiki style about")
+    about_dialog.set_website_label("Read more about usage")
     
     icon = gtk.gdk.pixbuf_new_from_file(self._ICON)
     about_dialog.set_logo(icon)
