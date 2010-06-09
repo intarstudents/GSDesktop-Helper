@@ -121,7 +121,7 @@ class GSDesktop_Helper:
     about_dialog.set_version(self._VERSION)
     about_dialog.set_authors(self._AUTHORS)
     about_dialog.set_website("http://grooveshark.wikia.com/wiki/GSDesktop_Global_Keyboard_Shortcuts")
-    about_dialog.set_website_label("Read more about usage")
+    about_dialog.set_website_label("How to groove?")
     
     icon = gtk.gdk.pixbuf_new_from_file(self._ICON)
     about_dialog.set_logo(icon)
