@@ -85,7 +85,6 @@ class GSDesktop_Helper:
     
     self.load_conf()
     self.bindKeys()
-    self.create_conf_window()
     
     # Status icon stuff
     self._status_icon = gtk.StatusIcon()
@@ -175,8 +174,9 @@ class GSDesktop_Helper:
       self._confRowBox.pack_start(box, True, True, 0)
     
     # Ok everything is ready, append!
-    self._confRowBox.show()
     self._window.add(self._confRowBox)
+    self._confRowBox.show()
+    self._window.show()
   
   # Change toggle (if it isn't same as previous)
   def change_toggle(self, window, event):
@@ -198,10 +198,10 @@ class GSDesktop_Helper:
     if event.type == gtk.gdk.BUTTON_RELEASE:
       self.modify_toggle = (entry, toggle)
   
-  # On window show unbind keys
+  # Create configuration window and unbind keys
   def show_conf_window(self, window):
     self.unbindKeys()
-    self._window.show()
+    self.create_conf_window()
   
   # On window hide bind keys
   def hide_conf_window(self, window):
@@ -212,7 +212,8 @@ class GSDesktop_Helper:
   def bindKeys(self):
     for toggle in self._hotkeys:  
       try:  keybinder.unbind(self._hotkeys[toggle])
-      except: pass
+      except Exception, e:
+        print e
       
       # Default bad hotkeys
       if not gtk.accelerator_parse(self._hotkeys[toggle])[0] and not self._hotkeys[toggle] == self._defaults[toggle]:
@@ -223,7 +224,7 @@ class GSDesktop_Helper:
         print "%s binded" % self._hotkeys[toggle]
         
       except Exception, e:
-        pass
+        print e
   
   # Handle unbinding of keys
   def unbindKeys(self):
@@ -246,7 +247,7 @@ class GSDesktop_Helper:
   def menu_callback(self, icon, button, time):
     menu = gtk.Menu()
     
-    configure   = gtk.MenuItem("Configure")
+    configure   = gtk.MenuItem("Settings")
     about   = gtk.MenuItem("About")
     quit    = gtk.MenuItem("Quit")
     
