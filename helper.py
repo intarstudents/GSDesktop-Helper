@@ -76,6 +76,7 @@ class GSDesktop_Helper:
     }
     
     self.bindKeys()
+    self.modify_toggle = None
     self.create_conf_window()
     
     # Status icon stuff
@@ -114,8 +115,14 @@ class GSDesktop_Helper:
       label.set_justify(gtk.JUSTIFY_LEFT)
       label.show()
       
-      entry = gtk.Entry(50)
+      keyval, state = gtk.accelerator_parse(self._hotkeys[toggle])
+      mod = gtk.accelerator_get_label(keyval, state)
+      
+      entry = gtk.Entry()
       entry.set_editable(False)
+      entry.set_text(mod)
+      entry.toggle = toggle
+      entry.connect("event", self.change_toggle)
       entry.show()
       
       box.pack_start(label, False, False, 0)
@@ -127,6 +134,10 @@ class GSDesktop_Helper:
     
     self._confRowBox.show()
     self._window.add(self._confRowBox)
+  
+  def change_toggle(self, widget, event, data=None):
+    if event.type == gtk.gdk.BUTTON_RELEASE:
+      self.modify_toggle = widget.toggle
   
   def show_conf_window(self, window):
     self.unbindKeys()
