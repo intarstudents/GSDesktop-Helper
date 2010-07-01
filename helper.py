@@ -87,10 +87,13 @@ class GSDesktop_Helper:
     
     gtk.main()
   
+  def save_conf(self):
+    pass
+  
   def create_conf_window(self):
     self._window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     self._window.set_title(self._NAME)
-    self._window.set_default_size(300, 350)
+    self._window.set_default_size(320, 350)
     self._window.set_icon_from_file(self._ICON)
     self._window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
     self._window.set_border_width(10)
@@ -98,13 +101,13 @@ class GSDesktop_Helper:
     self._window.connect("destroy", self.hide_conf_window)
     self._window.connect('key-press-event', self.change_toggle)
     
-    self._confMainBox = gtk.VBox(False, 0)
     self._confRowBox  = gtk.VBox(False, 0)
     
-    warningLabel = gtk.Label("Keyboard shortcuts are disabled while this window is open.")
+    warningLabel = gtk.Label()
+    warningLabel.set_markup('<span size="x-small" foreground="#FFF" background="#AE0000">Keyboard shortcuts are disabled while this window is open.</span>');
     warningLabel.show()
     
-    self._confRowBox.pack_start(warningLabel)
+    self._confRowBox.pack_end(warningLabel)
     
     for toggle in self._hotkeys:
       box = gtk.HBox(False, 0)
