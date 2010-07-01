@@ -64,7 +64,31 @@ class GSDesktop_Helper:
       '<Ctrl><Alt>Page_Down'  : "volumedown",     # Ctrl + Alt + Page Down
     }
     
-    # Bind all hotkeys (before making sure to unbind them)
+    self.bindKeys()
+    
+    # Configuration window stuff
+    self._window = gtk.Window()
+    self._window.set_title(self._NAME)
+    self._window.connect("destroy", self.hide_conf_window)
+    #self._window.show()
+    
+    # Status icon stuff
+    self._status_icon = gtk.StatusIcon()
+    self._status_icon.set_from_file(self._ICON)
+    self._status_icon.set_tooltip(self._NAME)
+    self._status_icon.connect("popup-menu", self.menu_callback)
+    
+    gtk.main()
+  
+  def show_conf_window(self, window):
+    self.unbindKeys()
+    self._window.show()
+  
+  def hide_conf_window(self, window):
+    self.bindKeys()
+    self._window.hide()
+  
+  def bindKeys(self):
     for keystring in self._hotkeys:  
       try:  keybinder.unbind(keystring)
       except: pass
@@ -75,24 +99,16 @@ class GSDesktop_Helper:
         
       except Exception, e:
         pass
-    
-    # Configuration window stuff
-    self._window = gtk.Window()
-    self._window.set_title(self._NAME)
-    self._window.connect("destroy", lambda w: self._window.hide())
-    self._window.show()
-    
-    # Status icon stuff
-    self._status_icon = gtk.StatusIcon()
-    self._status_icon.set_from_file(self._ICON)
-    self._status_icon.set_tooltip(self._NAME)
-    self._status_icon.connect("popup-menu", self.menu_callback)
-    
-    gtk.main()
+  
+  def unbindKeys(self):
+    for keystring in self._hotkeys:  
+      try:  keybinder.unbind(keystring)
+      except: pass
   
   # Handle recieved hotkey action
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
+      print toggle
       try:
         file = open(self._shortcutAction, "a")
         file.write("%s\n" % toggle)
@@ -108,7 +124,7 @@ class GSDesktop_Helper:
     about   = gtk.MenuItem("About")
     quit    = gtk.MenuItem("Quit")
     
-    configure.connect("activate", lambda w: self._window.show())
+    configure.connect("activate", self.show_conf_window)
     about.connect("activate", self.show_about_dialog)
     quit.connect("activate", gtk.main_quit)
     
