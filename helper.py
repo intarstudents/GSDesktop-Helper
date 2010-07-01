@@ -52,25 +52,31 @@ class GSDesktop_Helper:
       error_msg.destroy()
       os._exit(0)
     
-    # List of all hotkeys and their actions
+    # Default list of all hotkeys and their actions
     self._hotkeys = {
-      '<Ctrl>period'          : "next",           # Ctrl + .
-      '<Ctrl>comma'           : "previous",       # Ctrl + ,
-      '<Ctrl>equal'           : "playpause",      # Ctrl + =
-      '<Ctrl>grave'           : "shuffle",        # Ctrl + `
-      '<Ctrl>slash'           : "showsongtoast",  # Ctrl + /
-      '<Ctrl>backslash'       : "togglefavorite", # Ctrl + \
-      '<Ctrl><Alt>Page_Up'    : "volumeup",       # Ctrl + Alt + Page Up
-      '<Ctrl><Alt>Page_Down'  : "volumedown",     # Ctrl + Alt + Page Down
+      "next"            : "<Ctrl>period",         # Ctrl + .
+      "previous"        : "<Ctrl>comma",          # Ctrl + ,
+      "playpause"       : "<Ctrl>equal",          # Ctrl + =
+      "shuffle"         : "<Ctrl>grave",          # Ctrl + `
+      "showsongtoast"   : "<Ctrl>slash",          # Ctrl + /
+      "togglefavorite"  : "<Ctrl>backslash",      # Ctrl + \
+      "volumeup"        : "<Ctrl><Alt>Page_Up",   # Ctrl + Alt + Page Up
+      "volumedown"      : "<Ctrl><Alt>Page_Down", # Ctrl + Alt + Page Down
+    }
+    
+    self._hotkey_name = {
+      "next"            : "Plays next song",
+      "previous"        : "Plays previous song",
+      "playpause"       : "Toggles Play/Pause",
+      "shuffle"         : "Toggles Shuffle",
+      "showsongtoast"   : "Displays song info",
+      "togglefavorite"  : "Favorites song",
+      "volumeup"        : "Increases volume",
+      "volumedown"      : "Decreases volume",
     }
     
     self.bindKeys()
-    
-    # Configuration window stuff
-    self._window = gtk.Window()
-    self._window.set_title(self._NAME)
-    self._window.connect("destroy", self.hide_conf_window)
-    #self._window.show()
+    self.create_conf_window()
     
     # Status icon stuff
     self._status_icon = gtk.StatusIcon()
@@ -79,6 +85,48 @@ class GSDesktop_Helper:
     self._status_icon.connect("popup-menu", self.menu_callback)
     
     gtk.main()
+  
+  def create_conf_window(self):
+    self._window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    #self._window.set_resizable(False)
+    self._window.set_title(self._NAME)
+    self._window.set_default_size(460, 495)
+    self._window.set_icon_from_file(self._ICON)
+    self._window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+    self._window.set_border_width(10)
+    self._window.connect("destroy", self.hide_conf_window)
+    
+    self._confMainBox = gtk.VBox(False, 0)
+    self._confRowBox  = gtk.VBox(False, 0)
+    
+    warningLabel = gtk.Label("These keyboard shortcuts will be unbinded while editing!")
+    warningLabel.show()
+    
+    self._confRowBox.pack_start(warningLabel)
+    
+    for toggle in self._hotkeys:
+      box = gtk.HBox(False, 0)
+      
+      seperator = gtk.Label("")
+      seperator.show()
+      
+      label = gtk.Label(self._hotkey_name[toggle])
+      label.set_justify(gtk.JUSTIFY_LEFT)
+      label.show()
+      
+      entry = gtk.Entry(50)
+      entry.set_editable(False)
+      entry.show()
+      
+      box.pack_start(label, False, False, 0)
+      box.pack_start(seperator)
+      box.pack_start(entry, False, False, 0)
+      box.show()
+      
+      self._confRowBox.pack_start(box, True, True, 0)
+    
+    self._confRowBox.show()
+    self._window.add(self._confRowBox)
   
   def show_conf_window(self, window):
     self.unbindKeys()
@@ -89,20 +137,20 @@ class GSDesktop_Helper:
     self._window.hide()
   
   def bindKeys(self):
-    for keystring in self._hotkeys:  
-      try:  keybinder.unbind(keystring)
+    for toggle in self._hotkeys:  
+      try:  keybinder.unbind(self._hotkeys[toggle])
       except: pass
         
       try:
-        keybinder.bind(keystring, self.keyboard_callback, self._hotkeys[keystring])
-        print "%s binded" % keystring
+        keybinder.bind(self._hotkeys[toggle], self.keyboard_callback, toggle)
+        print "%s binded" % self._hotkeys[toggle]
         
       except Exception, e:
         pass
   
   def unbindKeys(self):
-    for keystring in self._hotkeys:  
-      try:  keybinder.unbind(keystring)
+    for toggle in self._hotkeys:  
+      try:  keybinder.unbind(self._hotkeys[toggle])
       except: pass
   
   # Handle recieved hotkey action
