@@ -89,18 +89,19 @@ class GSDesktop_Helper:
   
   def create_conf_window(self):
     self._window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    #self._window.set_resizable(False)
     self._window.set_title(self._NAME)
-    self._window.set_default_size(460, 495)
+    self._window.set_default_size(300, 350)
     self._window.set_icon_from_file(self._ICON)
     self._window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
     self._window.set_border_width(10)
+    
     self._window.connect("destroy", self.hide_conf_window)
+    self._window.connect('key-press-event', self.change_toggle)
     
     self._confMainBox = gtk.VBox(False, 0)
     self._confRowBox  = gtk.VBox(False, 0)
     
-    warningLabel = gtk.Label("These keyboard shortcuts will be unbinded while editing!")
+    warningLabel = gtk.Label("Keyboard shortcuts are disabled while this window is open.")
     warningLabel.show()
     
     self._confRowBox.pack_start(warningLabel)
@@ -116,13 +117,12 @@ class GSDesktop_Helper:
       label.show()
       
       keyval, state = gtk.accelerator_parse(self._hotkeys[toggle])
-      mod = gtk.accelerator_get_label(keyval, state)
+      keycombo = gtk.accelerator_get_label(keyval, state)
       
       entry = gtk.Entry()
       entry.set_editable(False)
-      entry.set_text(mod)
-      entry.toggle = toggle
-      entry.connect("event", self.change_toggle)
+      entry.set_text(keycombo)
+      entry.connect("event", self.focus_toggle, toggle, entry)
       entry.show()
       
       box.pack_start(label, False, False, 0)
@@ -135,9 +135,21 @@ class GSDesktop_Helper:
     self._confRowBox.show()
     self._window.add(self._confRowBox)
   
-  def change_toggle(self, widget, event, data=None):
+  def change_toggle(self, window, event):
+    if not self.modify_toggle == None:
+      entry, toggle = self.modify_toggle
+      
+      keyval = event.keyval
+      state = event.state
+      keycombo = gtk.accelerator_get_label(keyval, state)
+      new_toggle = gtk.accelerator_name(keyval, state)
+      
+      self._hotkeys[toggle] = new_toggle
+      entry.set_text(keycombo)
+  
+  def focus_toggle(self, widget, event, toggle, entry, data=None):
     if event.type == gtk.gdk.BUTTON_RELEASE:
-      self.modify_toggle = widget.toggle
+      self.modify_toggle = (entry, toggle)
   
   def show_conf_window(self, window):
     self.unbindKeys()
