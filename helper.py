@@ -76,6 +76,12 @@ class GSDesktop_Helper:
       except Exception, e:
         pass
     
+    # Configuration window stuff
+    self._window = gtk.Window()
+    self._window.set_title(self._NAME)
+    self._window.connect("destroy", lambda w: self._window.hide())
+    self._window.show()
+    
     # Status icon stuff
     self._status_icon = gtk.StatusIcon()
     self._status_icon.set_from_file(self._ICON)
@@ -97,13 +103,16 @@ class GSDesktop_Helper:
   # Handle status icon popup
   def menu_callback(self, icon, button, time):
     menu = gtk.Menu()
-
+    
+    configure   = gtk.MenuItem("Configure")
     about   = gtk.MenuItem("About")
     quit    = gtk.MenuItem("Quit")
     
+    configure.connect("activate", lambda w: self._window.show())
     about.connect("activate", self.show_about_dialog)
     quit.connect("activate", gtk.main_quit)
     
+    menu.append(configure)
     menu.append(about)
     menu.append(quit)
     
