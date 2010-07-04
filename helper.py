@@ -244,7 +244,7 @@ class GSDesktop_Helper:
       try:  keybinder.unbind(self._hotkeys[toggle])
       except: pass
   
-  # Handle recieved hotkey action
+  # Handle received hotkey action
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
       try:
