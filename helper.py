@@ -62,7 +62,6 @@ class GSDesktop_Helper:
       error_msg.destroy()
       os._exit(0)
     
-    #os._exit(0)
     # Default list of all hotkeys and their actions
     self._defaults = {
       "next"            : "<Ctrl>period",         # Ctrl + .
@@ -81,16 +80,16 @@ class GSDesktop_Helper:
       self._hotkeys[toggle] = self._defaults[toggle]
     
     # Nice names for keyboard shortcuts
-    self._hotkey_name = {
-      "next"            : "Plays next song",
-      "previous"        : "Plays previous song",
-      "playpause"       : "Toggles Play/Pause",
-      "shuffle"         : "Toggles Shuffle",
-      "showsongtoast"   : "Displays song info",
-      "togglefavorite"  : "Favorites song",
-      "volumeup"        : "Increases volume",
-      "volumedown"      : "Decreases volume",
-    }
+    self._hotkey_name = [
+      ["next"           , "Plays next song"],
+      ["previous"       , "Plays previous song"],
+      ["playpause"      , "Toggles Play/Pause"],
+      ["shuffle"        , "Toggles Shuffle"],
+      ["showsongtoast"  , "Displays song info"],
+      ["togglefavorite" , "Favorites song"],
+      ["volumeup"       , "Increases volume"],
+      ["volumedown"     , "Decreases volume"],
+    ]
     
     self.load_conf()
     self.bindKeys()
@@ -153,14 +152,14 @@ class GSDesktop_Helper:
     self._confRowBox.pack_end(warningLabel)
     
     # Allow to edit each toggle
-    for toggle in self._hotkeys:
+    for toggle, title in self._hotkey_name:
       box = gtk.HBox(False, 0)
       
       # Kinda hacky way, err?
       seperator = gtk.Label("")
       seperator.show()
       
-      label = gtk.Label(self._hotkey_name[toggle])
+      label = gtk.Label(title)
       label.set_justify(gtk.JUSTIFY_LEFT)
       label.show()
       
