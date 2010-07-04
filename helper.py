@@ -139,17 +139,23 @@ class GSDesktop_Helper:
     self._window.connect("destroy", self.hide_conf_window)
     self._window.connect('key-press-event', self.change_toggle)
     
-    # Build warning label
+    # Build warning box
     warningLabel = gtk.Label()
-    warningLabel.set_markup('<span size="x-small" foreground="#FFF" background="#AE0000">Keyboard shortcuts are disabled, while this window is open.</span>');
+    warningLabel.set_markup('<span size="x-small" foreground="#FFF">Keyboard shortcuts are disabled, while this window is open.</span>');
     warningLabel.show()
+    
+    warningBox = gtk.EventBox()
+    warningBox.modify_bg(0, gtk.gdk.Color("#AE0000"))
+    warningBox.show()
+    
+    warningBox.add(warningLabel)
     
     # Currently active input box
     self.modify_toggle = None
     
     # Row handler
     self._confRowBox  = gtk.VBox(False, 0)
-    self._confRowBox.pack_end(warningLabel)
+    self._confRowBox.pack_end(warningBox)
     
     # Allow to edit each toggle
     for toggle, title in self._hotkey_name:
