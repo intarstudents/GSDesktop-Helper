@@ -12,7 +12,7 @@ class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.2"
+    self._VERSION = "0.3"
     self._AUTHORS = ["Intars Students"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
@@ -45,7 +45,15 @@ class GSDesktop_Helper:
         if os.path.exists(self._shortcutAction):
           break
         else:
-          self._shortcutAction = None
+          
+          # If shortcutAction.txt doesn't exist try to create it
+          try: open(self._shortcutAction, 'w').close()
+          except: pass
+          
+          if os.path.exists(self._shortcutAction):
+            break
+          else:
+            self._shortcutAction = None
     
     if not self._shortcutAction:
       error_msg = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "Couldn't find shortcutAction.txt file!")
@@ -54,6 +62,7 @@ class GSDesktop_Helper:
       error_msg.destroy()
       os._exit(0)
     
+    #os._exit(0)
     # Default list of all hotkeys and their actions
     self._defaults = {
       "next"            : "<Ctrl>period",         # Ctrl + .
@@ -212,8 +221,7 @@ class GSDesktop_Helper:
   def bindKeys(self):
     for toggle in self._hotkeys:  
       try:  keybinder.unbind(self._hotkeys[toggle])
-      except Exception, e:
-        print e
+      except: pass
       
       # Default bad hotkeys
       if not gtk.accelerator_parse(self._hotkeys[toggle])[0] and not self._hotkeys[toggle] == self._defaults[toggle]:
@@ -221,10 +229,9 @@ class GSDesktop_Helper:
       
       try:
         keybinder.bind(self._hotkeys[toggle], self.keyboard_callback, toggle)
-        print "%s binded" % self._hotkeys[toggle]
+        #print "%s binded" % self._hotkeys[toggle]
         
-      except Exception, e:
-        print e
+      except: pass
   
   # Handle unbinding of keys
   def unbindKeys(self):
@@ -235,7 +242,6 @@ class GSDesktop_Helper:
   # Handle recieved hotkey action
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
-      print toggle
       try:
         file = open(self._shortcutAction, "a")
         file.write("%s\n" % toggle)
