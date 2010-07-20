@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# - coding: utf-8 -
+
+import os
+import sys
+import re
+import gtk
+import time
+from subprocess import Popen, PIPE
+
+class Protocol_Handler:
+  def __init__(self):
+    
+    # Findout if Grooveshark Desktop is running
+    if "bin/Grooveshark" not in os.popen("ps -Af").read():
+      whereis = Popen("whereis Grooveshark".split(" "), stdout=PIPE, stderr=PIPE)
+      stdout, stderr = whereis.communicate()
+      
+      m = re.match("^Grooveshark\: (.*?)(\n| )", stdout)
+      if m:
+        Popen(m.group(1))
+    
+    # Search for valid gs:// argument
+    self.gs_url = None
+    for arg in sys.argv:
+      if re.search("^gs\:\/\/", arg):
+        self.gs_url = arg
+        break
+      
+    # Find shortcutAction.txt file
+    self._homedir = "%s/.appdata" % os.path.expanduser('~')
+    self._appdata = os.listdir(self._homedir)
+    self._shortcutAction = None
+    
+    for name in self._appdata:
+      m = re.match("^(GroovesharkDesktop[A-Z0-9\.]+)$", name)
+      
+      if m:
+        self._shortcutAction = "%s/%s/Local Store/shortcutAction.txt" % (self._homedir, m.group(0))
+        
+        if os.path.exists(self._shortcutAction):
+          break
+        else:
+          
+          # If shortcutAction.txt doesn't exist try to create it
+          try: open(self._shortcutAction, 'w').close()
+          except: pass
+          
+          if os.path.exists(self._shortcutAction):
+            break
+          else:
+            self._shortcutAction = None
+    
+    # Toggle if everything is OK
+    if not self._shortcutAction == None and not self.gs_url == None:
+      self.toggle("Protocol %s" % self.gs_url)
+      
+  # Handle toggle
+  def toggle(self, toggle):
+    if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
+      try:
+        file = open(self._shortcutAction, "a")
+        file.write("%s\n" % toggle)
+        file.close()
+      except Exception, e:
+        print e
+  
+if __name__ == '__main__':
+  Protocol_Handler()
