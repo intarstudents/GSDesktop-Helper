@@ -7,12 +7,13 @@ import re
 import gtk
 import keybinder
 import ConfigParser
+import gconf
 
 class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.3"
+    self._VERSION = "0.4"
     self._AUTHORS = ["Intars Students"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
@@ -93,6 +94,7 @@ class GSDesktop_Helper:
     
     self.load_conf()
     self.bindKeys()
+    self.protocolHandler()
     
     # Status icon stuff
     self._status_icon = gtk.StatusIcon()
@@ -102,6 +104,16 @@ class GSDesktop_Helper:
     
     gtk.main()
   
+  # Add custom protocol handler
+  def protocolHandler(self):
+    try:
+      self.gconfig = gconf.client_get_default()
+      self.gconfig.set_string("/desktop/gnome/url-handlers/gs/command", "%s/Grooveshark %%s" % sys.path[0])
+      self.gconfig.set_bool("/desktop/gnome/url-handlers/gs/needs_terminal", False);
+      self.gconfig.set_bool("/desktop/gnome/url-handlers/gs/enabled", True);
+      
+    except: pass
+    
   # If configuration file exists, load key combos from it 
   def load_conf(self):
     try:
@@ -234,7 +246,6 @@ class GSDesktop_Helper:
       
       try:
         keybinder.bind(self._hotkeys[toggle], self.keyboard_callback, toggle)
-        #print "%s binded" % self._hotkeys[toggle]
         
       except: pass
   
@@ -259,8 +270,8 @@ class GSDesktop_Helper:
     menu = gtk.Menu()
     
     configure   = gtk.MenuItem("Settings")
-    about   = gtk.MenuItem("About")
-    quit    = gtk.MenuItem("Quit")
+    about       = gtk.MenuItem("About")
+    quit        = gtk.MenuItem("Quit")
     
     configure.connect("activate", self.show_conf_window)
     about.connect("activate", self.show_about_dialog)
