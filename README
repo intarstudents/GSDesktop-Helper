@@ -1,5 +1,5 @@
 === Dependencies ===
-aptitude install python-keybinder python-gtk2 python
+aptitude install python-keybinder python-gtk2 python-gconf python
 
 === Usage (Ubuntu) ===
 $ cd ~
