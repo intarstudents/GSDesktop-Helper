@@ -13,8 +13,8 @@ class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.4"
-    self._AUTHORS = ["Intars Students"]
+    self._VERSION = "0.4.1"
+    self._AUTHORS = ["Intars Students\n-----", "Icon by Thvg\nhttp://thvg.deviantart.com/"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
     # Try to find icon file
