@@ -169,17 +169,16 @@ class GSDesktop_Helper:
     self._confRowBox  = gtk.VBox(False, 0)
     self._confRowBox.pack_end(warningBox)
     
+    rows = len(self._hotkey_name)
+    table = gtk.Table(rows, 3)
+    row = 0
     # Allow to edit each toggle
     for toggle, title in self._hotkey_name:
-      box = gtk.HBox(False, 0)
-      
-      # Kinda hacky way, err?
-      seperator = gtk.Label("")
-      seperator.show()
-      
       label = gtk.Label(title)
-      label.set_justify(gtk.JUSTIFY_LEFT)
+      label.set_sensitive(self._hotkeys[toggle] != "DISABLED")
+      label.set_alignment(0, 0.5)
       label.show()
+      table.attach(label, 1, 2, row, row + 1, xpadding=5)
       
       keyval, state = gtk.accelerator_parse(self._hotkeys[toggle])
       keycombo = gtk.accelerator_get_label(keyval, state)
@@ -188,22 +187,44 @@ class GSDesktop_Helper:
       entry = gtk.Entry()
       entry.set_editable(False)
       entry.set_text(keycombo)
+      entry.set_sensitive(self._hotkeys[toggle] != "DISABLED")
       entry.connect("event", self.focus_toggle, toggle, entry)
       entry.show()
-      
-      # Pack it up
-      box.pack_start(label, False, False, 0)
-      box.pack_start(seperator)
-      box.pack_start(entry, False, False, 0)
-      box.show()
-      
-      self._confRowBox.pack_start(box, True, True, 0)
+      table.attach(entry, 2, 3, row, row + 1)
+
+      # Checkbutton to enable / disable this hotkey
+      # defined out of order w.r.t the table so we can pass label/entry to callback
+      checkbutton = gtk.CheckButton()
+      checkbutton.set_active(self._hotkeys[toggle] != "DISABLED")
+      checkbutton.connect("toggled", self.checkbox_toggle, toggle, label, entry)
+      checkbutton.show()
+      table.attach(checkbutton, 0, 1, row, row + 1)
+
+      row += 1
+    table.show()
+    self._confRowBox.pack_start(table)
     
     # Ok everything is ready, append!
     self._window.add(self._confRowBox)
     self._confRowBox.show()
     self._window.show()
   
+  # Enable / Disable config options
+  def checkbox_toggle(self, checkbox, toggle, label, entry):
+    if checkbox.get_active():
+      label.set_sensitive(True)
+      entry.set_sensitive(True)
+      self._hotkeys[toggle] = self._defaults[toggle]
+      keyval, state = gtk.accelerator_parse(self._hotkeys[toggle])
+      keycombo = gtk.accelerator_get_label(keyval, state)
+      entry.set_text(keycombo)
+      self.save_conf()
+    else:
+      label.set_sensitive(False)
+      entry.set_sensitive(False)
+      self._hotkeys[toggle] = "DISABLED"
+      self.save_conf()
+
   # Change toggle (if it isn't same as previous)
   def change_toggle(self, window, event):
     if self.modify_toggle != None:
@@ -236,24 +257,26 @@ class GSDesktop_Helper:
   
   # Handle binding of keys
   def bindKeys(self):
-    for toggle in self._hotkeys:  
-      try:  keybinder.unbind(self._hotkeys[toggle])
-      except: pass
+    for toggle in self._hotkeys:
+      if not (self._hotkeys[toggle] == "DISABLED"):
+        try:  keybinder.unbind(self._hotkeys[toggle])
+        except: pass
       
-      # Default bad hotkeys
-      if not gtk.accelerator_parse(self._hotkeys[toggle])[0] and not self._hotkeys[toggle] == self._defaults[toggle]:
-        self._hotkeys[toggle] = self._defaults[toggle]
+        # Default bad hotkeys
+        if not gtk.accelerator_parse(self._hotkeys[toggle])[0] and not self._hotkeys[toggle] == self._defaults[toggle]:
+          self._hotkeys[toggle] = self._defaults[toggle]
       
-      try:
-        keybinder.bind(self._hotkeys[toggle], self.keyboard_callback, toggle)
+        try:
+            keybinder.bind(self._hotkeys[toggle], self.keyboard_callback, toggle)
         
-      except: pass
+        except: pass
   
   # Handle unbinding of keys
   def unbindKeys(self):
     for toggle in self._hotkeys:  
-      try:  keybinder.unbind(self._hotkeys[toggle])
-      except: pass
+      if not (self._hotkeys[toggle] == "DISABLED"):
+        try:  keybinder.unbind(self._hotkeys[toggle])
+        except: pass
   
   # Handle received hotkey action
   def keyboard_callback(self, toggle):
