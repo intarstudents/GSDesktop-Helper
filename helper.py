@@ -13,8 +13,8 @@ class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.4.1"
-    self._AUTHORS = ["Intars Students\n-----", "Icon by Thvg\nhttp://thvg.deviantart.com/"]
+    self._VERSION = "0.4.2"
+    self._AUTHORS = ["Intars Students\nhttp://intarstudents.lv/\n-----", "ppannuto\nhttp://umich.edu/~ppannuto/\n-----", "Icon by Thvg\nhttp://thvg.deviantart.com/"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
     # Try to find icon file
@@ -168,6 +168,10 @@ class GSDesktop_Helper:
     # Row handler
     self._confRowBox  = gtk.VBox(False, 0)
     self._confRowBox.pack_end(warningBox)
+    
+    separator = gtk.HSeparator()
+    separator.show()
+    self._confRowBox.pack_end(separator)
     
     rows = len(self._hotkey_name)
     table = gtk.Table(rows, 3)
