@@ -148,7 +148,7 @@ class GSDesktop_Helper:
     # Look and feel of window
     self._window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     self._window.set_title(self._NAME)
-    self._window.set_default_size(320, 350)
+    self._window.set_default_size(325, 350)
     self._window.set_icon_from_file(self._ICON)
     self._window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
     self._window.set_border_width(10)
@@ -157,31 +157,39 @@ class GSDesktop_Helper:
     self._window.connect("destroy", self.hide_conf_window)
     self._window.connect('key-press-event', self.change_toggle)
     
+    # Currently active input box
+    self.modify_toggle = None
+    
+    # Windows box handler
+    self._confWindowHandler = gtk.VBox(False, 1)
+    self._confWindowHandler.show()
+    
     # Build warning box
     warningLabel = gtk.Label()
-    warningLabel.set_markup('<span size="x-small" foreground="#FFF">Keyboard shortcuts are disabled, while this window is open.</span>');
+    warningLabel.set_markup('\n<span size="x-small" foreground="#FFF">Keyboard shortcuts are disabled, while this window is open.</span>\n');
     warningLabel.show()
     
     warningBox = gtk.EventBox()
     warningBox.modify_bg(0, gtk.gdk.Color("#AE0000"))
+    warningBox.add(warningLabel)
     warningBox.show()
     
-    warningBox.add(warningLabel)
+    self._confWindowHandler.pack_end(warningBox, False)
     
-    # Currently active input box
-    self.modify_toggle = None
+    # Add nice separator
+    separator = gtk.HSeparator()
+    separator.show()
+    
+    self._confWindowHandler.pack_end(separator, False, padding=5)
     
     # Row handler
     self._confRowBox  = gtk.VBox(False, 0)
-    self._confRowBox.pack_end(warningBox)
-    
-    separator = gtk.HSeparator()
-    separator.show()
-    self._confRowBox.pack_end(separator)
+    self._confRowBox.show()
     
     rows = len(self._hotkey_name)
     table = gtk.Table(rows, 3)
     row = 0
+    
     # Allow to edit each toggle
     for toggle, title in self._hotkey_name:
       label = gtk.Label(title)
@@ -208,15 +216,26 @@ class GSDesktop_Helper:
       checkbutton.set_active(self._hotkeys[toggle] != "DISABLED")
       checkbutton.connect("toggled", self.checkbox_toggle, toggle, label, entry)
       checkbutton.show()
+      
       table.attach(checkbutton, 0, 1, row, row + 1)
-
+      table.set_row_spacing(row, 2)
+      
       row += 1
+    
     table.show()
     self._confRowBox.pack_start(table)
     
+    # To un-clutter windows, if new shortcuts come along, added scrollbar
+    self._scrollBox = gtk.ScrolledWindow(hadjustment=None, vadjustment=None)
+    self._scrollBox.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+    self._scrollBox.set_shadow_type(gtk.SHADOW_NONE)
+    
+    self._scrollBox.add_with_viewport(self._confRowBox)
+    self._scrollBox.show()
+    
     # Ok everything is ready, append!
-    self._window.add(self._confRowBox)
-    self._confRowBox.show()
+    self._confWindowHandler.pack_start(self._scrollBox)
+    self._window.add(self._confWindowHandler)
     self._window.show()
   
   # Enable / Disable config options
