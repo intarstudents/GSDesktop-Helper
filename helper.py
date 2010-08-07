@@ -69,8 +69,11 @@ class GSDesktop_Helper:
       "previous"        : "<Ctrl>comma",          # Ctrl + ,
       "playpause"       : "<Ctrl>equal",          # Ctrl + =
       "shuffle"         : "<Ctrl>grave",          # Ctrl + `
+      "radio"           : "<Super>grave",         # Super + `
       "showsongtoast"   : "<Ctrl>slash",          # Ctrl + /
       "togglefavorite"  : "<Ctrl>backslash",      # Ctrl + \
+      "togglesmile"     : "<Super>period",        # Super + .
+      "togglefrown"     : "<Super>comma",         # Super + ,
       "volumeup"        : "<Ctrl><Alt>Page_Up",   # Ctrl + Alt + Page Up
       "volumedown"      : "<Ctrl><Alt>Page_Down", # Ctrl + Alt + Page Down
     }
@@ -86,8 +89,11 @@ class GSDesktop_Helper:
       ["previous"       , "Plays previous song"],
       ["playpause"      , "Toggles Play/Pause"],
       ["shuffle"        , "Toggles Shuffle"],
+      ["radio"          , "Toggles Radio"],
       ["showsongtoast"  , "Displays song info"],
       ["togglefavorite" , "Favorites song"],
+      ["togglesmile"    , "\"Smiles\" song"],
+      ["togglefrown"    , "\"Frowns\" song"],
       ["volumeup"       , "Increases volume"],
       ["volumedown"     , "Decreases volume"],
     ]
