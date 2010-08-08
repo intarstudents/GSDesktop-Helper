@@ -97,6 +97,21 @@ class GSDesktop_Helper:
       ["volumeup"       , "Increases volume"],
       ["volumedown"     , "Decreases volume"],
     ]
+
+    # Nice names for shortcut actions
+    self._hotkey_action = [
+      ["next"           , "Play next"],
+      ["previous"       , "Play previous"],
+      ["playpause"      , "Play/Pause"],
+      ["shuffle"        , "Shuffle"],
+      ["radio"          , "Radio"],
+      ["showsongtoast"  , "Show Song Info"],
+      ["togglefavorite" , "Favorite Song"],
+      ["togglesmile"    , "\"Smile\" Song"],
+      ["togglefrown"    , "\"Frown\" Song"],
+      ["volumeup"       , "Increase Volume"],
+      ["volumedown"     , "Decrease Volume"],
+    ]
     
     self.load_conf()
     self.bindKeys()
@@ -317,6 +332,10 @@ class GSDesktop_Helper:
       except Exception, e:
         print e
   
+  # Handle action from context menu
+  def menu_action_callback(self, widget, toggle):
+    self.keyboard_callback(toggle)
+  
   # Handle status icon popup
   def menu_callback(self, icon, button, time):
     menu = gtk.Menu()
@@ -324,6 +343,7 @@ class GSDesktop_Helper:
     configure   = gtk.MenuItem("Settings")
     about       = gtk.MenuItem("About")
     quit        = gtk.MenuItem("Quit")
+    separator   = gtk.MenuItem()
     
     configure.connect("activate", self.show_conf_window)
     about.connect("activate", self.show_about_dialog)
@@ -332,6 +352,11 @@ class GSDesktop_Helper:
     menu.append(configure)
     menu.append(about)
     menu.append(quit)
+    menu.append(separator)
+    for toggle,action in self._hotkey_action:
+      menu_item = gtk.MenuItem(action)
+      menu_item.connect("activate", self.menu_action_callback, toggle)
+      menu.append(menu_item)
     
     menu.show_all()
     menu.popup(None, None, gtk.status_icon_position_menu, button, time, self._status_icon)
