@@ -13,7 +13,7 @@ class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.4.2"
+    self._VERSION = "0.4.3"
     self._AUTHORS = ["Intars Students\nhttp://intarstudents.lv/\n-----", "ppannuto\nhttp://umich.edu/~ppannuto/\n-----", "Icon by Thvg\nhttp://thvg.deviantart.com/"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
@@ -82,35 +82,22 @@ class GSDesktop_Helper:
     self._hotkeys = {}
     for toggle in self._defaults:
       self._hotkeys[toggle] = self._defaults[toggle]
-    
+
     # Nice names for keyboard shortcuts
+    # ["toggle", ["Name in options", "(Optional) Name in menu"]]
+    
     self._hotkey_name = [
-      ["next"           , "Plays next song"],
-      ["previous"       , "Plays previous song"],
-      ["playpause"      , "Toggles Play/Pause"],
-      ["shuffle"        , "Toggles Shuffle"],
-      ["radio"          , "Toggles Radio"],
-      ["showsongtoast"  , "Displays song info"],
+      ["next"           , ["Plays next song", "Play next"]],
+      ["previous"       , ["Plays previous song", "Play previous"]],
+      ["playpause"      , ["Toggles Play/Pause", "Play/Pause"]],
+      ["shuffle"        , ["Toggles Shuffle", "Shuffle"]],
+      ["radio"          , ["Toggles Radio", "Radio"]],
+      ["showsongtoast"  , ["Displays song info", "Show Song Info"]],
       ["togglefavorite" , "Favorites song"],
       ["togglesmile"    , "\"Smiles\" song"],
       ["togglefrown"    , "\"Frowns\" song"],
       ["volumeup"       , "Increases volume"],
       ["volumedown"     , "Decreases volume"],
-    ]
-
-    # Nice names for shortcut actions
-    self._hotkey_action = [
-      ["next"           , "Play next"],
-      ["previous"       , "Play previous"],
-      ["playpause"      , "Play/Pause"],
-      ["shuffle"        , "Shuffle"],
-      ["radio"          , "Radio"],
-      ["showsongtoast"  , "Show Song Info"],
-      ["togglefavorite" , "Favorite Song"],
-      ["togglesmile"    , "\"Smile\" Song"],
-      ["togglefrown"    , "\"Frown\" Song"],
-      ["volumeup"       , "Increase Volume"],
-      ["volumedown"     , "Decrease Volume"],
     ]
     
     self.load_conf()
@@ -205,9 +192,11 @@ class GSDesktop_Helper:
     table = gtk.Table(rows, 3)
     row = 0
     
+    get_title = lambda x: x[0] if type(x).__name__ == "list" else x
+    
     # Allow to edit each toggle
     for toggle, title in self._hotkey_name:
-      label = gtk.Label(title)
+      label = gtk.Label(get_title(title))
       label.set_sensitive(self._hotkeys[toggle] != "DISABLED")
       label.set_alignment(0, 0.5)
       label.show()
@@ -353,8 +342,11 @@ class GSDesktop_Helper:
     menu.append(about)
     menu.append(quit)
     menu.append(separator)
-    for toggle,action in self._hotkey_action:
-      menu_item = gtk.MenuItem(action)
+    
+    get_action = lambda x: x[1] if type(x).__name__ == "list" else x
+    
+    for toggle, action in self._hotkey_name:
+      menu_item = gtk.MenuItem(get_action(action))
       menu_item.connect("activate", self.menu_action_callback, toggle)
       menu.append(menu_item)
     
