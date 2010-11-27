@@ -38,28 +38,33 @@ class GSDesktop_Helper:
       os._exit(0)
     
     # Find shortcutAction.txt file
+    self._appdata = None
     self._homedir = "%s/.appdata" % os.path.expanduser('~')
-    self._appdata = os.listdir(self._homedir)
+    
+    if os.path.exists(self._homedir):
+      self._appdata = os.listdir(self._homedir)
+      
     self._shortcutAction = None
     
-    for name in self._appdata:
-      m = re.match("^(GroovesharkDesktop[A-Z0-9\.]+)$", name)
-      
-      if m:
-        self._shortcutAction = "%s/%s/Local Store/shortcutAction.txt" % (self._homedir, m.group(0))
+    if self._appdata != None:
+      for name in self._appdata:
+        m = re.match("^(GroovesharkDesktop[A-Z0-9\.]+)$", name)
         
-        if os.path.exists(self._shortcutAction):
-          break
-        else:
-          
-          # If shortcutAction.txt doesn't exist try to create it
-          try: open(self._shortcutAction, 'w').close()
-          except: pass
+        if m:
+          self._shortcutAction = "%s/%s/Local Store/shortcutAction.txt" % (self._homedir, m.group(0))
           
           if os.path.exists(self._shortcutAction):
             break
           else:
-            self._shortcutAction = None
+            
+            # If shortcutAction.txt doesn't exist try to create it
+            try: open(self._shortcutAction, 'w').close()
+            except: pass
+            
+            if os.path.exists(self._shortcutAction):
+              break
+            else:
+              self._shortcutAction = None
     
     if not self._shortcutAction:
       error_msg = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "Couldn't find shortcutAction.txt file!")
@@ -329,7 +334,6 @@ class GSDesktop_Helper:
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
       try:
-        print toggle
         file = open(self._shortcutAction, "a")
         file.write("%s\n" % toggle)
         file.close()
