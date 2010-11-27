@@ -9,11 +9,16 @@ import keybinder
 import ConfigParser
 import gconf
 
+try:
+  import dbus
+  from dbus.mainloop.glib import DBusGMainLoop
+except: pass
+
 class GSDesktop_Helper:
   def __init__(self):
     
     self._NAME    = "GSDesktop Helper"
-    self._VERSION = "0.4.3"
+    self._VERSION = "0.4.4"
     self._AUTHORS = ["Intars Students\nhttp://intarstudents.lv/\n-----", "ppannuto\nhttp://umich.edu/~ppannuto/\n-----", "Icon by Thvg\nhttp://thvg.deviantart.com/"]
     self._INI     = os.path.expanduser('~')+"/.gsdesktop-helper"
     
@@ -99,6 +104,15 @@ class GSDesktop_Helper:
       ["volumeup"       , "Increases volume"],
       ["volumedown"     , "Decreases volume"],
     ]
+    
+    # Try to enable multimedia keys (Gnome)
+    try:
+      dbus_loop = DBusGMainLoop()
+      self.bus = dbus.SessionBus(mainloop=dbus_loop)
+      self.bus_object = self.bus.get_object('org.gnome.SettingsDaemon', '/org/gnome/SettingsDaemon/MediaKeys')
+      self.bus_object.connect_to_signal("MediaPlayerKeyPressed", self.MMKeys)
+    except:
+      print "Multimedia keys disabled"
     
     self.load_conf()
     self.bindKeys()
@@ -315,11 +329,24 @@ class GSDesktop_Helper:
   def keyboard_callback(self, toggle):
     if os.path.exists(self._shortcutAction) and os.access(self._shortcutAction, os.W_OK):
       try:
+        print toggle
         file = open(self._shortcutAction, "a")
         file.write("%s\n" % toggle)
         file.close()
       except Exception, e:
         print e
+  
+  # Handle multimedia keys
+  def MMKeys(self, *mmkeys):
+    for mmk in mmkeys:
+      
+      toggle = "%s" % mmk.lower()
+      
+      if toggle == "play":
+        toggle = "playpause" 
+      
+      if toggle:
+        self.keyboard_callback(toggle)
   
   # Handle action from context menu
   def menu_action_callback(self, widget, toggle):
